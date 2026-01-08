@@ -21,11 +21,18 @@ The retouch feature allows users to manually refine the background removal resul
 - **Adjustable Brush Size**: 5px to 100px
   - Small brushes for fine details
   - Large brushes for broad areas
+
+- **Brush Hardness**: 0% to 100%
+  - **100% (Hard)**: Sharp, crisp edges with no feathering
+  - **50% (Medium)**: Balanced soft edge for natural blending
+  - **0% (Soft)**: Very soft, feathered edges for subtle transitions
+  - Creates radial gradient from center to edge
   
 - **Visual Cursor**: 
-  - Green circle for restore mode
-  - Red circle for erase mode
-  - Size matches brush size for precision
+  - Green circles for restore mode, red for erase mode
+  - Outer circle shows full brush size
+  - Inner circle shows hard edge area (based on hardness)
+  - Size matches actual brush effect for precision
 
 ### 👁️ Overlay Toggle
 
@@ -77,35 +84,44 @@ The retouch feature allows users to manually refine the background removal resul
 
 **Restoring Hair:**
 - Use small to medium brush (15-30px)
+- Low hardness (20-40%) for natural, wispy edges
 - Enable original overlay
 - Carefully trace along hair strands
+- Multiple passes with soft brush for realistic blending
 
 **Removing Background Artifacts:**
 - Use erase mode
 - Medium to large brush (30-60px)
+- Medium hardness (50-70%) for clean removal
 - Remove any remaining background pieces
 
 **Fixing Edges:**
 - Small brush (5-15px)
+- Medium to high hardness (60-80%) for crisp edges
+- Or low hardness (20-40%) for soft, natural edges
 - Zoom in for precision
 - Carefully trace the edge
 
 **Adding Back Accessories:**
 - Restore mode
 - Brush size matching the detail level
+- High hardness (70-90%) for solid objects
 - Paint over removed jewelry, glasses, etc.
 
 ## Technical Details
 
 ### Canvas-Based Editing
 - Uses HTML5 Canvas for real-time editing
+- Radial gradient brushes for smooth transitions
 - Non-destructive until you apply changes
 - Full resolution editing (no quality loss)
 
 ### Mask System
 - Works with alpha channel masks
-- Restore mode: Adds to mask (makes visible)
-- Erase mode: Removes from mask (makes transparent)
+- Radial gradients create smooth edge transitions
+- Hardness controls gradient spread
+- Restore mode: Adds to mask with gradient (makes visible)
+- Erase mode: Removes from mask with gradient (makes transparent)
 
 ### Performance
 - Optimized for smooth drawing
@@ -119,6 +135,8 @@ Planned shortcuts:
 - `E` - Switch to Erase mode
 - `[` - Decrease brush size
 - `]` - Increase brush size
+- `Shift+[` - Decrease hardness
+- `Shift+]` - Increase hardness
 - `Space` - Toggle original overlay
 - `Ctrl+Z` - Undo (planned)
 - `Ctrl+Y` - Redo (planned)
@@ -145,12 +163,13 @@ Requires:
 
 Planned features:
 - [ ] Undo/Redo functionality
-- [ ] Brush hardness control
-- [ ] Opacity control
+- [x] Brush hardness control (✅ Implemented!)
+- [ ] Brush opacity control
 - [ ] Magic wand tool
 - [ ] Edge detection assist
 - [ ] Keyboard shortcuts
 - [ ] Touch/stylus support for tablets
+- [ ] Pressure sensitivity for drawing tablets
 - [ ] Before/after slider
 - [ ] Multiple layers support
 

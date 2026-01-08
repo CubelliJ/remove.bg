@@ -5,6 +5,7 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
   const canvasRef = useRef(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [brushSize, setBrushSize] = useState(30)
+  const [brushHardness, setBrushHardness] = useState(80) // 0-100, higher = harder edge
   const [brushMode, setBrushMode] = useState('restore') // 'restore' or 'erase'
   const [showOriginal, setShowOriginal] = useState(true)
   const [canvasContext, setCanvasContext] = useState(null)
@@ -97,16 +98,47 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
 
     const maskCtx = maskCanvas.getContext('2d')
     
+    // Create radial gradient for soft brush
+    const gradient = maskCtx.createRadialGradient(x, y, 0, x, y, brushSize)
+    
+    // Inverse exponential curve for natural falloff
+    // hardness 100 = hard edge, hardness 0 = ultra soft edge
+    const hardnessRatio = brushHardness / 100
+    
+    // Create smooth gradient with inverse exponential falloff
+    // More gradient stops for smoother transitions
+    const numStops = 10
+    
+    for (let i = 0; i <= numStops; i++) {
+      const position = i / numStops // 0 to 1
+      
+      // Inverse exponential formula: opacity = (1 - position)^(1/hardness)
+      // When hardness is low, the exponent is high, creating a very gradual falloff
+      // When hardness is high, the exponent is low, creating a sharp falloff
+      const exponent = hardnessRatio === 0 ? 4 : (1 / (hardnessRatio * 3 + 0.3))
+      let opacity = Math.pow(1 - position, exponent)
+      
+      // Ensure we reach full transparency at the edge
+      if (i === numStops) opacity = 0
+      
+      const alpha = Math.max(0, Math.min(1, opacity))
+      
+      if (brushMode === 'restore') {
+        gradient.addColorStop(position, `rgba(255, 255, 255, ${alpha})`)
+      } else {
+        gradient.addColorStop(position, `rgba(255, 255, 255, ${alpha})`)
+      }
+    }
+    
     if (brushMode === 'restore') {
       // Restore mode: add to mask (make visible)
       maskCtx.globalCompositeOperation = 'source-over'
-      maskCtx.fillStyle = 'rgba(255, 255, 255, 1)'
     } else {
       // Erase mode: remove from mask (make transparent)
       maskCtx.globalCompositeOperation = 'destination-out'
-      maskCtx.fillStyle = 'rgba(255, 255, 255, 1)'
     }
     
+    maskCtx.fillStyle = gradient
     maskCtx.beginPath()
     maskCtx.arc(x, y, brushSize, 0, Math.PI * 2)
     maskCtx.fill()
@@ -184,7 +216,7 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <circle cx="12" cy="12" r="8" />
               </svg>
-              Brush Size: {brushSize}px
+              Size: {brushSize}px
             </label>
             <input
               type="range"
@@ -192,6 +224,25 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
               max="100"
               value={brushSize}
               onChange={(e) => setBrushSize(parseInt(e.target.value))}
+              className="brush-slider"
+            />
+          </div>
+
+          <div className="brush-size-control">
+            <label>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <circle cx="12" cy="12" r="10" strokeWidth="2"/>
+                <circle cx="12" cy="12" r="6" strokeWidth="2" opacity="0.5"/>
+                <circle cx="12" cy="12" r="2" strokeWidth="2" opacity="0.3"/>
+              </svg>
+              Hardness: {brushHardness}%
+            </label>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={brushHardness}
+              onChange={(e) => setBrushHardness(parseInt(e.target.value))}
               className="brush-slider"
             />
           </div>
@@ -232,7 +283,13 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
               const scale = rect.width / canvas.width
               const displaySize = brushSize * scale
               const svgSize = displaySize * 2
-              return `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}"><circle cx="${displaySize}" cy="${displaySize}" r="${displaySize}" fill="none" stroke="${brushMode === 'restore' ? '%23059669' : '%23dc2626'}" stroke-width="2"/></svg>') ${displaySize} ${displaySize}, crosshair`
+              const color = brushMode === 'restore' ? '%23059669' : '%23dc2626'
+              
+              // Calculate inner circle size based on hardness
+              const hardnessRatio = brushHardness / 100
+              const innerSize = displaySize * Math.max(0, hardnessRatio - 0.1)
+              
+              return `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="${svgSize}" height="${svgSize}"><circle cx="${displaySize}" cy="${displaySize}" r="${displaySize}" fill="none" stroke="${color}" stroke-width="2" opacity="0.5"/><circle cx="${displaySize}" cy="${displaySize}" r="${innerSize}" fill="none" stroke="${color}" stroke-width="1.5"/></svg>') ${displaySize} ${displaySize}, crosshair`
             })()
           }}
         />
@@ -241,8 +298,8 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
       <div className="retouch-hint">
         <p>
           {brushMode === 'restore' 
-            ? '🖌️ Click and drag to restore parts of the original image'
-            : '✂️ Click and drag to remove unwanted parts'}
+            ? '🖌️ Click and drag to restore parts of the original image. Adjust hardness for soft or sharp edges.'
+            : '✂️ Click and drag to remove unwanted parts. Adjust hardness for soft or sharp edges.'}
         </p>
       </div>
     </div>
