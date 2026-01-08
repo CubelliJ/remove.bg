@@ -46,7 +46,7 @@ npm run preview
 
 ## Usage
 
-1. **Upload an image**: Drag & drop or click to select a PNG, JPEG, or JPG image (max 10MB)
+1. **Upload an image**: Drag & drop or click to select a PNG, JPEG, JPG, or WebP image (max 10MB)
 2. **Remove background**: Click the "Remove Background" button
 3. **Download**: Once processed, download your PNG with transparent background
 4. **Process another**: Click "New Image" to start over
@@ -71,6 +71,7 @@ const API_URL = 'http://localhost:8000'
 - PNG
 - JPEG
 - JPG
+- WebP
 
 **Output format**: PNG with alpha channel (transparent background)
 

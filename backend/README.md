@@ -4,7 +4,7 @@ A FastAPI-based REST API for removing backgrounds from images using ML segmentat
 
 ## Features
 
-- Remove backgrounds from PNG, JPEG, and JPG images
+- Remove backgrounds from PNG, JPEG, JPG, and WebP images
 - Returns PNG images with transparent alpha channel
 - Uses pretrained U2-Net model for accurate segmentation
 - Dockerized for easy deployment
@@ -57,7 +57,7 @@ Remove background from an uploaded image.
 **Parameters:**
 - `file`: Image file (multipart/form-data)
 
-**Supported formats:** PNG, JPEG, JPG
+**Supported formats:** PNG, JPEG, JPG, WebP
 
 **Returns:** PNG image with transparent background
 

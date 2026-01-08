@@ -16,9 +16,9 @@ function App() {
     if (!file) return
 
     // Validate file type
-    const validTypes = ['image/png', 'image/jpeg', 'image/jpg']
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
     if (!validTypes.includes(file.type)) {
-      setError('Please select a valid image file (PNG, JPEG, JPG)')
+      setError('Please select a valid image file (PNG, JPEG, JPG, WebP)')
       return
     }
 
@@ -158,12 +158,12 @@ function App() {
                 <input
                   id="file-upload"
                   type="file"
-                  accept="image/png,image/jpeg,image/jpg"
+                  accept="image/png,image/jpeg,image/jpg,image/webp"
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
               </label>
-              <p className="file-info">PNG, JPEG, JPG (max 10MB)</p>
+              <p className="file-info">PNG, JPEG, JPG, WebP (max 10MB)</p>
             </div>
           </div>
         ) : (

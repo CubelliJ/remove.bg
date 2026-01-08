@@ -45,14 +45,14 @@ async def remove_background(file: UploadFile = File(...)):
     Remove background from an uploaded image.
     
     Args:
-        file: Image file (PNG, JPEG, JPG)
+        file: Image file (PNG, JPEG, JPG, WebP)
     
     Returns:
         PNG image with transparent background
     """
     try:
         # Validate file type
-        allowed_types = ["image/png", "image/jpeg", "image/jpg"]
+        allowed_types = ["image/png", "image/jpeg", "image/jpg", "image/webp"]
         if file.content_type not in allowed_types:
             raise HTTPException(
                 status_code=400,
