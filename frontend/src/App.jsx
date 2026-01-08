@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import axios from 'axios'
+import RetouchEditor from './RetouchEditor'
 import './App.css'
 
 function App() {
@@ -9,8 +10,16 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [dragActive, setDragActive] = useState(false)
+  const [isRetouching, setIsRetouching] = useState(false)
 
   const API_URL = 'http://localhost:8000'
+
+  // Auto-process when file is selected
+  useEffect(() => {
+    if (selectedFile && !processedImage && !loading) {
+      removeBackground()
+    }
+  }, [selectedFile])
 
   const handleFileSelect = (file) => {
     if (!file) return
@@ -119,120 +128,165 @@ function App() {
     setOriginalImage(null)
     setProcessedImage(null)
     setError(null)
+    setIsRetouching(false)
+  }
+
+  const handleRetouchSave = (retouchedImageUrl) => {
+    setProcessedImage(retouchedImageUrl)
+    setIsRetouching(false)
+  }
+
+  const handleRetouchCancel = () => {
+    setIsRetouching(false)
   }
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>🎨 Background Remover</h1>
-        <p>Remove backgrounds from images using AI</p>
-      </header>
+      <nav className="navbar">
+        <div className="nav-content">
+          <div className="logo">
+            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+              <rect width="32" height="32" rx="8" fill="#6366f1"/>
+              <path d="M16 8L24 16L16 24L8 16L16 8Z" fill="white"/>
+            </svg>
+            <span>remove.bg</span>
+          </div>
+          <div className="nav-links">
+            <a href="#">Upload</a>
+            <a href="#">Tools</a>
+            <a href="#">Pricing</a>
+          </div>
+        </div>
+      </nav>
 
       <main className="main">
-        {!originalImage ? (
-          <div
-            className={`upload-area ${dragActive ? 'drag-active' : ''}`}
+        <div className="editor-container">
+          {/* Toolbar */}
+          <div className="toolbar">
+            <div className="toolbar-left">
+              <button className="tool-btn active">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
+                </svg>
+                Cutout
+              </button>
+              <button 
+                className="tool-btn" 
+                onClick={() => setIsRetouching(true)}
+                disabled={!processedImage}
+                title="Retouch - Add or remove details"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                Retouch
+              </button>
+              <button className="tool-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth={2}/>
+                </svg>
+                Background
+              </button>
+            </div>
+            <button className="btn-download" onClick={downloadImage} disabled={!processedImage}>
+              Download
+            </button>
+          </div>
+
+          {/* Canvas Area */}
+          <div 
+            className={`canvas-area ${dragActive ? 'drag-active' : ''}`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
           >
-            <div className="upload-content">
-              <svg
-                className="upload-icon"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            {loading && (
+              <div className="loading-overlay">
+                <div className="spinner-large"></div>
+                <p>Processing your image...</p>
+              </div>
+            )}
+
+            {!originalImage ? (
+              <div className="upload-prompt">
+                <svg
+                  className="upload-icon-large"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+                <h2>Upload an image to remove the background</h2>
+                <p className="upload-hint">or drop a file</p>
+                <label htmlFor="file-upload" className="upload-button">
+                  Upload Image
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg,image/webp"
+                    onChange={handleFileChange}
+                    style={{ display: 'none' }}
+                  />
+                </label>
+                <p className="file-formats">PNG, JPEG, JPG, WebP - up to 10MB</p>
+              </div>
+            ) : (
+              <div className="image-display">
+                <img 
+                  src={processedImage || originalImage} 
+                  alt="Preview" 
+                  className="preview-image"
                 />
-              </svg>
-              <h2>Drop your image here</h2>
-              <p>or</p>
-              <label htmlFor="file-upload" className="file-label">
-                <span className="btn btn-primary">Choose File</span>
+              </div>
+            )}
+          </div>
+
+          {/* Thumbnail Strip */}
+          {originalImage && (
+            <div className="thumbnail-strip">
+              <label htmlFor="file-upload-thumb" className="add-image-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <line x1="12" y1="5" x2="12" y2="19" strokeWidth={2} strokeLinecap="round"/>
+                  <line x1="5" y1="12" x2="19" y2="12" strokeWidth={2} strokeLinecap="round"/>
+                </svg>
                 <input
-                  id="file-upload"
+                  id="file-upload-thumb"
                   type="file"
                   accept="image/png,image/jpeg,image/jpg,image/webp"
                   onChange={handleFileChange}
                   style={{ display: 'none' }}
                 />
               </label>
-              <p className="file-info">PNG, JPEG, JPG, WebP (max 10MB)</p>
-            </div>
-          </div>
-        ) : (
-          <div className="image-container">
-            <div className="image-comparison">
-              <div className="image-box">
-                <h3>Original</h3>
-                <div className="image-wrapper">
-                  <img src={originalImage} alt="Original" />
-                </div>
-              </div>
-
-              <div className="image-box">
-                <h3>Processed</h3>
-                <div className="image-wrapper checkered">
-                  {processedImage ? (
-                    <img src={processedImage} alt="Processed" />
-                  ) : (
-                    <div className="placeholder">
-                      <p>Click "Remove Background" to process</p>
-                    </div>
-                  )}
-                </div>
+              <div className="thumbnail active">
+                <img src={originalImage} alt="Thumbnail" />
               </div>
             </div>
-
-            <div className="actions">
-              {!processedImage ? (
-                <button
-                  className="btn btn-primary btn-large"
-                  onClick={removeBackground}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span className="spinner"></span>
-                      Processing...
-                    </>
-                  ) : (
-                    '✨ Remove Background'
-                  )}
-                </button>
-              ) : (
-                <>
-                  <button
-                    className="btn btn-success btn-large"
-                    onClick={downloadImage}
-                  >
-                    ⬇️ Download PNG
-                  </button>
-                  <button className="btn btn-secondary" onClick={reset}>
-                    🔄 New Image
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {error && (
-          <div className="error">
-            <strong>Error:</strong> {error}
+          <div className="error-toast">
+            {error}
           </div>
         )}
       </main>
 
-      <footer className="footer">
-        <p>Powered by U2-Net AI Model</p>
-      </footer>
+      {/* Retouch Editor Modal */}
+      {isRetouching && originalImage && processedImage && (
+        <RetouchEditor
+          originalImage={originalImage}
+          processedImage={processedImage}
+          onSave={handleRetouchSave}
+          onCancel={handleRetouchCancel}
+        />
+      )}
     </div>
   )
 }

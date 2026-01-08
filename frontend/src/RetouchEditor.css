@@ -1,0 +1,211 @@
+.retouch-editor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.retouch-toolbar {
+  background: #1f2937;
+  padding: 1rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #374151;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.retouch-tools {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.retouch-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #374151;
+  color: #e5e7eb;
+  border: 2px solid transparent;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.retouch-btn:hover {
+  background: #4b5563;
+}
+
+.retouch-btn.active {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.brush-size-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.brush-size-control label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.brush-slider {
+  width: 150px;
+  height: 6px;
+  border-radius: 3px;
+  background: #374151;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.brush-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+}
+
+.brush-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #2563eb;
+  cursor: pointer;
+  border: none;
+}
+
+.toggle-original {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e5e7eb;
+  font-size: 0.875rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-original input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.retouch-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-cancel,
+.btn-save {
+  padding: 0.625rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-cancel {
+  background: #374151;
+  color: #e5e7eb;
+}
+
+.btn-cancel:hover {
+  background: #4b5563;
+}
+
+.btn-save {
+  background: #059669;
+  color: white;
+}
+
+.btn-save:hover {
+  background: #047857;
+}
+
+.retouch-canvas-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 2rem;
+  background: linear-gradient(45deg, #1f2937 25%, transparent 25%),
+              linear-gradient(-45deg, #1f2937 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #1f2937 75%),
+              linear-gradient(-45deg, transparent 75%, #1f2937 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+  background-color: #111827;
+}
+
+.retouch-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.retouch-hint {
+  background: #1f2937;
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid #374151;
+  text-align: center;
+}
+
+.retouch-hint p {
+  margin: 0;
+  color: #9ca3af;
+  font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .retouch-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .retouch-tools {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .retouch-actions {
+    width: 100%;
+  }
+
+  .btn-cancel,
+  .btn-save {
+    flex: 1;
+  }
+
+  .brush-slider {
+    width: 100%;
+  }
+
+  .retouch-canvas-container {
+    padding: 1rem;
+  }
+}
