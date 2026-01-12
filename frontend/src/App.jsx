@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import CutoutEditor from './CutoutEditor'
 import RetouchEditor from './RetouchEditor'
 import './App.css'
 
@@ -10,7 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [dragActive, setDragActive] = useState(false)
-  const [isRetouching, setIsRetouching] = useState(false)
+  const [activeMode, setActiveMode] = useState('preview') // 'preview', 'cutout', 'retouch'
 
   const API_URL = 'http://localhost:8000'
 
@@ -128,16 +129,16 @@ function App() {
     setOriginalImage(null)
     setProcessedImage(null)
     setError(null)
-    setIsRetouching(false)
+    setActiveMode('preview')
   }
 
-  const handleRetouchSave = (retouchedImageUrl) => {
-    setProcessedImage(retouchedImageUrl)
-    setIsRetouching(false)
+  const handleEditorSave = (editedImageUrl) => {
+    setProcessedImage(editedImageUrl)
+    setActiveMode('preview')
   }
 
-  const handleRetouchCancel = () => {
-    setIsRetouching(false)
+  const handleEditorCancel = () => {
+    setActiveMode('preview')
   }
 
   return (
@@ -165,9 +166,10 @@ function App() {
           <div className="toolbar">
             <div className="toolbar-left">
               <button 
-                className={`tool-btn ${!isRetouching ? 'active' : ''}`}
-                onClick={() => setIsRetouching(false)}
+                className={`tool-btn ${activeMode === 'cutout' ? 'active' : ''}`}
+                onClick={() => setActiveMode('cutout')}
                 disabled={!processedImage}
+                title="Cutout - Manually refine edges"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
@@ -175,8 +177,8 @@ function App() {
                 Cutout
               </button>
               <button 
-                className={`tool-btn ${isRetouching ? 'active' : ''}`}
-                onClick={() => setIsRetouching(true)}
+                className={`tool-btn ${activeMode === 'retouch' ? 'active' : ''}`}
+                onClick={() => setActiveMode('retouch')}
                 disabled={!processedImage}
                 title="Retouch - Add or remove details"
               >
@@ -241,12 +243,20 @@ function App() {
                 </label>
                 <p className="file-formats">PNG, JPEG, JPG, WebP - up to 10MB</p>
               </div>
-            ) : isRetouching ? (
+            ) : activeMode === 'cutout' ? (
+              <CutoutEditor
+                originalImage={originalImage}
+                processedImage={processedImage}
+                onSave={handleEditorSave}
+                onCancel={handleEditorCancel}
+              />
+            ) : activeMode === 'retouch' ? (
               <RetouchEditor
                 originalImage={originalImage}
                 processedImage={processedImage}
-                onSave={handleRetouchSave}
-                onCancel={handleRetouchCancel}
+                onSave={handleEditorSave}
+                onCancel={handleEditorCancel}
+                mode="retouch"
               />
             ) : (
               <div className="image-display">
