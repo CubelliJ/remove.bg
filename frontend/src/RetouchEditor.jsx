@@ -187,36 +187,39 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
   }
 
   return (
-    <div className="retouch-editor">
-      <div className="retouch-toolbar">
-        <div className="retouch-tools">
+    <div className="retouch-editor-inline">
+      {/* Retouch Controls Bar */}
+      <div className="retouch-controls">
+        <div className="retouch-mode-buttons">
           <button
-            className={`retouch-btn ${brushMode === 'restore' ? 'active' : ''}`}
+            className={`mode-btn ${brushMode === 'restore' ? 'active restore' : ''}`}
             onClick={() => setBrushMode('restore')}
             title="Restore (add back parts of the image)"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             Restore
           </button>
           <button
-            className={`retouch-btn ${brushMode === 'erase' ? 'active' : ''}`}
+            className={`mode-btn ${brushMode === 'erase' ? 'active erase' : ''}`}
             onClick={() => setBrushMode('erase')}
             title="Erase (remove parts of the image)"
           >
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
             </svg>
             Erase
           </button>
-          
-          <div className="brush-size-control">
+        </div>
+
+        <div className="retouch-sliders">
+          <div className="slider-group">
             <label>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                 <circle cx="12" cy="12" r="8" />
               </svg>
-              Size: {brushSize}px
+              Size
             </label>
             <input
               type="range"
@@ -224,18 +227,18 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
               max="100"
               value={brushSize}
               onChange={(e) => setBrushSize(parseInt(e.target.value))}
-              className="brush-slider"
+              className="slider"
             />
+            <span className="slider-value">{brushSize}</span>
           </div>
 
-          <div className="brush-size-control">
+          <div className="slider-group">
             <label>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <circle cx="12" cy="12" r="10" strokeWidth="2"/>
                 <circle cx="12" cy="12" r="6" strokeWidth="2" opacity="0.5"/>
-                <circle cx="12" cy="12" r="2" strokeWidth="2" opacity="0.3"/>
               </svg>
-              Hardness: {brushHardness}%
+              Hardness
             </label>
             <input
               type="range"
@@ -243,31 +246,26 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
               max="100"
               value={brushHardness}
               onChange={(e) => setBrushHardness(parseInt(e.target.value))}
-              className="brush-slider"
+              className="slider"
             />
+            <span className="slider-value">{brushHardness}%</span>
           </div>
+        </div>
 
-          <label className="toggle-original">
+        <div className="retouch-options">
+          <label className="checkbox-label">
             <input
               type="checkbox"
               checked={showOriginal}
               onChange={(e) => setShowOriginal(e.target.checked)}
             />
-            Show Original (50%)
+            <span>Show Original</span>
           </label>
-        </div>
-
-        <div className="retouch-actions">
-          <button className="btn-cancel" onClick={onCancel}>
-            Cancel
-          </button>
-          <button className="btn-save" onClick={handleSave}>
-            Apply Changes
-          </button>
         </div>
       </div>
 
-      <div className="retouch-canvas-container">
+      {/* Canvas Container */}
+      <div className="retouch-canvas-wrapper">
         <canvas
           ref={canvasRef}
           className="retouch-canvas"
@@ -295,12 +293,21 @@ function RetouchEditor({ originalImage, processedImage, onSave, onCancel }) {
         />
       </div>
 
-      <div className="retouch-hint">
-        <p>
+      {/* Bottom Actions */}
+      <div className="retouch-actions">
+        <div className="retouch-hint">
           {brushMode === 'restore' 
-            ? '🖌️ Click and drag to restore parts of the original image. Adjust hardness for soft or sharp edges.'
-            : '✂️ Click and drag to remove unwanted parts. Adjust hardness for soft or sharp edges.'}
-        </p>
+            ? '🖌️ Click and drag to restore parts of the original image'
+            : '✂️ Click and drag to remove unwanted parts'}
+        </div>
+        <div className="retouch-buttons">
+          <button className="btn-retouch-cancel" onClick={onCancel}>
+            Cancel
+          </button>
+          <button className="btn-retouch-apply" onClick={handleSave}>
+            Apply Changes
+          </button>
+        </div>
       </div>
     </div>
   )

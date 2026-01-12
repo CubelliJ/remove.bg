@@ -164,14 +164,18 @@ function App() {
           {/* Toolbar */}
           <div className="toolbar">
             <div className="toolbar-left">
-              <button className="tool-btn active">
+              <button 
+                className={`tool-btn ${!isRetouching ? 'active' : ''}`}
+                onClick={() => setIsRetouching(false)}
+                disabled={!processedImage}
+              >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z" />
                 </svg>
                 Cutout
               </button>
               <button 
-                className="tool-btn" 
+                className={`tool-btn ${isRetouching ? 'active' : ''}`}
                 onClick={() => setIsRetouching(true)}
                 disabled={!processedImage}
                 title="Retouch - Add or remove details"
@@ -181,7 +185,7 @@ function App() {
                 </svg>
                 Retouch
               </button>
-              <button className="tool-btn">
+              <button className="tool-btn" disabled>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                   <rect x="3" y="3" width="18" height="18" rx="2" strokeWidth={2}/>
                 </svg>
@@ -237,6 +241,13 @@ function App() {
                 </label>
                 <p className="file-formats">PNG, JPEG, JPG, WebP - up to 10MB</p>
               </div>
+            ) : isRetouching ? (
+              <RetouchEditor
+                originalImage={originalImage}
+                processedImage={processedImage}
+                onSave={handleRetouchSave}
+                onCancel={handleRetouchCancel}
+              />
             ) : (
               <div className="image-display">
                 <img 
@@ -278,15 +289,7 @@ function App() {
         )}
       </main>
 
-      {/* Retouch Editor Modal */}
-      {isRetouching && originalImage && processedImage && (
-        <RetouchEditor
-          originalImage={originalImage}
-          processedImage={processedImage}
-          onSave={handleRetouchSave}
-          onCancel={handleRetouchCancel}
-        />
-      )}
+
     </div>
   )
 }
